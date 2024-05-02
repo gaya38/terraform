@@ -61,6 +61,66 @@ resource "aws_route_table_association" "subnet_assoc" {
   route_table_id = aws_route_table.public_route_tbl.id
 }
 
+resource "aws_security_group" "outbound" {
+  provider    = aws.account
+  name        = "Outbound"
+  description = "AWS Outbound"
+  vpc_id      = aws_vpc.vpc.id
+
+  egress {
+    from_port        = 443
+    to_port          = 443
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"]
+  }
+
+  tags =
+    {
+      Name = "Outbound"
+    }
+
+  lifecycle {
+    ignore_changes = [
+      description,
+      ingress,
+      egress,
+    ]
+  }
+}
+
+resource "aws_security_group" "service" {
+  provider    = aws.account
+  name        = "Service"
+  description = "AWS Service"
+  vpc_id      = local.vpc_id
+
+  ingress {
+    from_port        = 443
+    to_port          = 443
+    protocol         = "tcp"
+    cidr_blocks      = [var.vpc_cidr]
+  }
+
+  egress {
+    from_port        = 53
+    to_port          = 53
+    protocol         = "tcp"
+    cidr_blocks      = [var.vpc_cidr]
+  }
+
+  tags ={
+      Name = "Service"
+  }
+
+  lifecycle {
+    ignore_changes = [
+      description,
+      ingress,
+      egress,
+    ]
+  }
+}
+
 resource "aws_vpc_peering_connection" "peer" {
   provider            = "aws.vpc2"
   vpc_id              = aws_vpc.vpc1.id
