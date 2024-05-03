@@ -28,3 +28,24 @@ variable "igw_cidr" {
 variable "region" {
 	type = "string"
 }
+
+rds variables
+----------------------------------
+variable "db_subnet_group" {
+	type = "string"
+}
+
+variable "region" {
+	type = "string"
+}
+variable "subnet_ids" {
+	type = "list"
+}
+variable "rdsiamroles" {
+  description = "iam roles for rds to interact with other aws resources. default set null."
+  default     = []
+}
+variable "vpcsecgrp" {
+  description = "list of VPC security groups to associate"
+  type        = list
+}
