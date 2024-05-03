@@ -201,3 +201,55 @@ data "aws_secretsmanager_secret_version" "my_secret_value" {
 output "my_secret_value" {
   value = data.aws_secretsmanager_secret_version.my_secret_value.secret_string
 }
+
+ecs
+---------------------------
+
+terraform
+provider "aws" {
+  region = "us-west-2"
+}
+
+resource "aws_ecs_cluster" "my_cluster" {
+  name = var.ecscluster-name "my-cluster"
+}
+
+resource "aws_ecs_task_definition" "my_task" {
+  family                = var.ecs-family "my-task"
+  network_mode          = var.networkmode"awsvpc"
+  cpu                   = var.cpu 256
+  memory                = var.memory 512
+  execution_role_arn    = var.execution_role_arn
+  task_role_arn         = var.task_role_arn
+
+  container_definitions = jsonencode([
+    {
+      name      = "my-container"
+      image     = "my-container-image"
+      cpu       = 256
+      memory    = 512
+    }
+  ])
+}
+
+resource "aws_ecs_service" "my_service" {
+  name            = var.ecsservice-name"my-service"
+  cluster         = aws_ecs_cluster.my_cluster.id
+  task_definition = aws_ecs_task_definition.my_task.arn
+  launch_type     = "FARGATE"
+  
+  capacity_provider_strategy {
+    capacity_provider = "FARGATE_SPOT"
+  }
+
+  network_configuration {
+    subnets         = var.ecs_subnets["subnet-abc123", "subnet-def456"]
+    assign_public_ip = "ENABLED"
+    security_groups = var.ecs_sg["sg-123456"]
+  }
+
+  depends_on = [
+    aws_ecs_cluster.my_cluster,
+    aws_ecs_task_definition.my_task,
+  ]
+}
