@@ -263,6 +263,10 @@ resource "aws_s3_bucket" "my_bucket" {
   bucket = var.bucketname"my-example-bucket"
   acl    = "private"
 
+  versioning {
+    enabled = true
+  }
+
   lifecycle_rule {
     enabled = true
 
