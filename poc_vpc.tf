@@ -1,6 +1,6 @@
-hcl
+terraform
 provider "aws" {
-  region = var.region
+  region = "us-east-1"
 }
 
 resource "aws_vpc" "vpc" {
