@@ -107,3 +107,9 @@ variable "vpcsecgrp" {
   description = "list of VPC security groups to associate"
   type        = list
 }
+
+s3
+---------------------
+variable "bucketname" {
+	type = string
+}
