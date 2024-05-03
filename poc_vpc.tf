@@ -121,6 +121,8 @@ resource "aws_security_group" "service" {
   }
 }
 
+Peering
+-------------------------------
 resource "aws_vpc_peering_connection" "peer" {
   provider            = "aws.vpc2"
   vpc_id              = aws_vpc.vpc1.id
@@ -133,4 +135,69 @@ resource "aws_route" "route" {
   route_table_id         = aws_route_table.public_route_tbl.id
   destination_cidr_block = aws_subnet.public_subnet.cidr_block
   gateway_id             = aws_vpc_peering_connection.peer.id
+}
+
+rds
+-----------------
+terraform
+provider "aws" {
+  region = "us-west-2"
+}
+
+resource "aws_db_subnet_group" "example" {
+  name       = var.db_subnet_group "my-db-subnet-group"
+  subnet_ids = var.subnet_ids["subnet-12345678", "subnet-23456789"]  # Add your subnet IDs here
+}
+
+resource "aws_rds_cluster" "example" {
+  cluster_identifier      = var.cluster_identifier "my-db-cluster"
+  engine                  = var.engine "aurora"
+  engine_version          = var.engine_version "5.6.10a"
+  master_username         = var.username"admin"
+  master_password         = random_string.password.result
+  db_subnet_group_name    = aws_db_subnet_group.example.name
+  iam_roles               = var.rdsiamroles
+  skip_final_snapshot     = true
+  vpc_security_group_ids  = var.vpcsecgrp
+}
+
+resource "aws_rds_cluster_instance" "example" {
+  cluster_identifier = aws_rds_cluster.example.id
+  instance_class     = "db.r5.large"
+  engine             = var.engine "aurora"
+}
+
+output "db_cluster_endpoint" {
+  value = aws_rds_cluster.example.endpoint
+}
+
+output "db_instance_endpoint" {
+  value = aws_rds_cluster_instance.example.endpoint
+}
+
+
+
+resource "random_string" "password" {
+  length           = 20
+  special          = true
+  override_special = "!@#$%^&*()"
+}
+
+resource "aws_secretsmanager_secret" "my_secret" {
+  name         = var.secret_name
+  description  = var.secret_description
+}
+
+resource "aws_secretsmanager_secret_version" "my_secret_value" {
+  secret_id     = aws_secretsmanager_secret.my_secret.id
+  secret_string = random_string.password.result
+}
+
+
+data "aws_secretsmanager_secret_version" "my_secret_value" {
+  secret_id = aws_secretsmanager_secret.my_secret.id
+}
+
+output "my_secret_value" {
+  value = data.aws_secretsmanager_secret_version.my_secret_value.secret_string
 }
