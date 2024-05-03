@@ -253,3 +253,56 @@ resource "aws_ecs_service" "my_service" {
     aws_ecs_task_definition.my_task,
   ]
 }
+
+terraform
+provider "aws" {
+  region = "us-east-1"
+}
+
+resource "aws_s3_bucket" "my_bucket" {
+  bucket = var.bucketname"my-example-bucket"
+  acl    = "private"
+
+  lifecycle_rule {
+    enabled = true
+
+    prefix = ""
+
+    noncurrent_version_expiration {
+      days = 30
+    }
+
+    transition {
+      days          = 30
+      storage_class = "STANDARD_IA"
+    }
+
+    transition {
+      days          = 60
+      storage_class = "GLACIER"
+    }
+  }
+}
+
+resource "aws_s3_bucket_policy" "my_bucket_policy" {
+  bucket = aws_s3_bucket.my_bucket.bucket
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect   = "Deny",
+        Principal = "*",
+        Action    = [
+          "s3:DeleteBucket"
+        ],
+        Resource  = aws_s3_bucket.my_bucket.arn,
+        Condition = {
+          StringNotEquals = {
+            "s3:x-amz-acl" = "private"
+          }
+        }
+      }
+    ]
+  })
+}
