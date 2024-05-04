@@ -1,0 +1,11 @@
+I have successfully completed the assigned exercises and have attached the zip file containing the relevant materials. Please note that the "Modules" folder contains all Terraform modules referenced in the exercise. The folders starting with "deploy" contain the actual deployment files for Terraform. 
+
+The Terraform deployment flow follows a specific sequence: 
+1. Initially, the "iam" module is deployed to establish the necessary roles and policies, which are globally independent of the VPCs. 
+
+2. Subsequently, the "vpc" module is deployed to create the VPCs, subnets, route tables, gateways, and security groups. 
+
+3. Finally, the third module deploys the required services in the control plane VPC. 
+
+
+Additionally, the entire infrastructure architecture diagram is available in the folder. I have coded to the best of my ability and in a manner that aligns with current knowledge. Should there be a live environment, we can make necessary adjustments based on specific requirements.
