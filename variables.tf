@@ -98,14 +98,25 @@ variable "ecs_subnets" {
 	type = "list"
 }
 
-variable "rdsiamroles" {
-  description = "iam roles for rds to interact with other aws resources. default set null."
-  default     = []
+variable "ecsservice-name" {
+	type = "string"
 }
 
-variable "vpcsecgrp" {
-  description = "list of VPC security groups to associate"
-  type        = list
+variable "ecs_subnets" {
+	type = list
+}
+
+variable "ecs_sg" {
+	type = list
+}
+
+variable "td_name" {
+  description = "The short description of the task definition to be created"
+}
+
+variable "td_container_port" {
+  description = "The port number on the container that is bound to the user-specified or automatically assigned host port"
+  default     = 80
 }
 
 s3
