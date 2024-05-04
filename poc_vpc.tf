@@ -248,6 +248,12 @@ resource "aws_ecs_service" "my_service" {
     security_groups = var.ecs_sg["sg-123456"]
   }
 
+   load_balancer {
+    container_name   = var.td_name
+    container_port   = var.td_container_port
+    target_group_arn = var.aws_alb_target_group_arn
+  }
+
   depends_on = [
     aws_ecs_cluster.my_cluster,
     aws_ecs_task_definition.my_task,
